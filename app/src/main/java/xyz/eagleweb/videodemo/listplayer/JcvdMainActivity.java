@@ -26,7 +26,6 @@ public class JcvdMainActivity extends Activity {
 
         Jzvd.setMediaInterface(new JZMediaIjkplayer());
         Jzvd.setVideoImageDisplayType(Jzvd.VIDEO_IMAGE_DISPLAY_TYPE_FILL_PARENT);
-        //        Jzvd.setMediaInterface(new JZMediaSystem());  // exo
 
         initView();
         initJCVDVideoData();

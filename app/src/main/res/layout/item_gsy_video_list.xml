@@ -17,13 +17,27 @@
         <!--android:id="@+id/video"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent"/>-->
-        <com.shuyu.gsyvideoplayer.video.ListGSYVideoPlayer
+        <!--<com.shuyu.gsyvideoplayer.video.ListGSYVideoPlayer-->
+        <!--android:id="@+id/video"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"/>-->
+
+        <!--<com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer-->
+        <!--android:id="@+id/video"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--/>-->
+
+        <xyz.eagleweb.videodemo.listplayer.gsyvideo.MyMultiVideoView
             android:id="@+id/video"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-        <!--<com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--/>-->
+
+        <ImageView
+            android:id="@+id/iv_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"/>
     </xyz.eagleweb.videodemo.listplayer.RoundFrameLayout>
+
 </RelativeLayout>

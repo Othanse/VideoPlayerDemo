@@ -11,6 +11,8 @@ import android.widget.Toast;
 import com.shuyu.gsyvideoplayer.utils.NetworkUtils;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 
+import java.util.ArrayList;
+
 /**
  * 计算滑动，自动播放的帮助类
  * Created by guoshuyu on 2017/11/2.
@@ -18,12 +20,12 @@ import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 
 public class ScrollCalculatorHelper {
 
-    private int firstVisible = 0;
-    private int lastVisible = 0;
-    private int visibleCount = 0;
-    private int playId;
-    private int rangeTop;
-    private int rangeBottom;
+    private int          firstVisible = 0;
+    private int          lastVisible  = 0;
+    private int          visibleCount = 0;
+    private int          playId;
+    private int          rangeTop;
+    private int          rangeBottom;
     private PlayRunnable runnable;
 
     private Handler playHandler = new Handler();
@@ -43,9 +45,9 @@ public class ScrollCalculatorHelper {
     }
 
     public void onScroll(RecyclerView view, int firstVisibleItem, int lastVisibleItem, int visibleItemCount) {
-//        if (firstVisible == firstVisibleItem) {
-//            return;
-//        }
+        //        if (firstVisible == firstVisibleItem) {
+        //            return;
+        //        }
         firstVisible = firstVisibleItem;
         lastVisible = lastVisibleItem;
         visibleCount = visibleItemCount;
@@ -64,6 +66,7 @@ public class ScrollCalculatorHelper {
 
         boolean needPlay = false;
 
+        ArrayList<GSYBaseVideoPlayer> gsyBaseVideoPlayers = new ArrayList<>();
         for (int i = 0; i < visibleCount; i++) {
             if (layoutManager.getChildAt(i) != null && layoutManager.getChildAt(i).findViewById(playId) != null) {
                 GSYBaseVideoPlayer player = (GSYBaseVideoPlayer) layoutManager.getChildAt(i).findViewById(playId);
@@ -77,25 +80,30 @@ public class ScrollCalculatorHelper {
                             || player.getCurrentPlayer().getCurrentState() == GSYBaseVideoPlayer.CURRENT_STATE_ERROR)) {
                         needPlay = true;
                     }
-                    break;
+                    gsyBaseVideoPlayers.add(gsyBaseVideoPlayer);
+                    //                    break;
                 }
 
             }
         }
-
-        if (gsyBaseVideoPlayer != null && needPlay) {
-            if (runnable != null) {
-                GSYBaseVideoPlayer tmpPlayer = runnable.gsyBaseVideoPlayer;
-                playHandler.removeCallbacks(runnable);
-                runnable = null;
-                if (tmpPlayer == gsyBaseVideoPlayer) {
-                    return;
-                }
+        for (GSYBaseVideoPlayer baseVideoPlayer : gsyBaseVideoPlayers) {
+            if (!baseVideoPlayer.isInPlayingState()) {
+                playHandler.postDelayed(new PlayRunnable(baseVideoPlayer), 400);
             }
-            runnable = new PlayRunnable(gsyBaseVideoPlayer);
-            //降低频率
-            playHandler.postDelayed(runnable, 400);
         }
+        //        if (gsyBaseVideoPlayer != null && needPlay) {
+        //            if (runnable != null) {
+        //                GSYBaseVideoPlayer tmpPlayer = runnable.gsyBaseVideoPlayer;
+        //                playHandler.removeCallbacks(runnable);
+        //                runnable = null;
+        //                if (tmpPlayer == gsyBaseVideoPlayer) {
+        //                    return;
+        //                }
+        //            }
+        //            runnable = new PlayRunnable(gsyBaseVideoPlayer);
+        //            //降低频率
+        //            playHandler.postDelayed(runnable, 400);
+        //        }
 
 
     }
@@ -137,6 +145,7 @@ public class ScrollCalculatorHelper {
             showWifiDialog(gsyBaseVideoPlayer, context);
             return;
         }
+        System.out.println("检测 自动播放！" + gsyBaseVideoPlayer.getPlayTag());
         gsyBaseVideoPlayer.startPlayLogic();
     }
 
