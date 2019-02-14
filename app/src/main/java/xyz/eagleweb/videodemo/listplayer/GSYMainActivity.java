@@ -119,17 +119,20 @@ public class GSYMainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         GSYVideoManager.onResume();
+        CustomManager.onResumeAll();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         GSYVideoManager.onPause();
+        CustomManager.onPauseAll();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         GSYVideoManager.releaseAllVideos();
+        CustomManager.clearAllVideo();
     }
 }

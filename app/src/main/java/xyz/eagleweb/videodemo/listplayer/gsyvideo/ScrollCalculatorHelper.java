@@ -12,6 +12,7 @@ import com.shuyu.gsyvideoplayer.utils.NetworkUtils;
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * 计算滑动，自动播放的帮助类
@@ -62,14 +63,14 @@ public class ScrollCalculatorHelper {
 
         RecyclerView.LayoutManager layoutManager = view.getLayoutManager();
 
-        GSYBaseVideoPlayer gsyBaseVideoPlayer = null;
+        MyMultiVideoView gsyBaseVideoPlayer = null;
 
         boolean needPlay = false;
 
-        ArrayList<GSYBaseVideoPlayer> gsyBaseVideoPlayers = new ArrayList<>();
+        ArrayList<MyMultiVideoView> gsyBaseVideoPlayers = new ArrayList<>();
         for (int i = 0; i < visibleCount; i++) {
             if (layoutManager.getChildAt(i) != null && layoutManager.getChildAt(i).findViewById(playId) != null) {
-                GSYBaseVideoPlayer player = (GSYBaseVideoPlayer) layoutManager.getChildAt(i).findViewById(playId);
+                MyMultiVideoView player = (MyMultiVideoView) layoutManager.getChildAt(i).findViewById(playId);
                 Rect rect = new Rect();
                 player.getLocalVisibleRect(rect);
                 int height = player.getHeight();
@@ -86,7 +87,7 @@ public class ScrollCalculatorHelper {
 
             }
         }
-        for (GSYBaseVideoPlayer baseVideoPlayer : gsyBaseVideoPlayers) {
+        for (MyMultiVideoView baseVideoPlayer : gsyBaseVideoPlayers) {
             if (!baseVideoPlayer.isInPlayingState()) {
                 playHandler.postDelayed(new PlayRunnable(baseVideoPlayer), 400);
             }
@@ -106,13 +107,19 @@ public class ScrollCalculatorHelper {
         //        }
 
 
+        GsyVideoQucikAdapter adapter = (GsyVideoQucikAdapter) view.getAdapter();
+        Set<String> prepareReleaseKeySet = adapter.getPrepareReleasePlayerSet();
+        for (String key : prepareReleaseKeySet) {
+            CustomManager.releaseAllVideos(key);
+            System.out.println("检测 释放：" + key);
+        }
     }
 
     private class PlayRunnable implements Runnable {
 
-        GSYBaseVideoPlayer gsyBaseVideoPlayer;
+        MyMultiVideoView gsyBaseVideoPlayer;
 
-        public PlayRunnable(GSYBaseVideoPlayer gsyBaseVideoPlayer) {
+        public PlayRunnable(MyMultiVideoView gsyBaseVideoPlayer) {
             this.gsyBaseVideoPlayer = gsyBaseVideoPlayer;
         }
 
@@ -139,13 +146,17 @@ public class ScrollCalculatorHelper {
 
 
     /***************************************自动播放的点击播放确认******************************************/
-    private void startPlayLogic(GSYBaseVideoPlayer gsyBaseVideoPlayer, Context context) {
+    private void startPlayLogic(MyMultiVideoView gsyBaseVideoPlayer, Context context) {
         if (!com.shuyu.gsyvideoplayer.utils.CommonUtil.isWifiConnected(context)) {
             //这里判断是否wifi
             showWifiDialog(gsyBaseVideoPlayer, context);
             return;
         }
-        System.out.println("检测 自动播放！" + gsyBaseVideoPlayer.getPlayTag());
+        System.out.println("检测 自动播放！" + gsyBaseVideoPlayer.getKey());
+        if (gsyBaseVideoPlayer.isInPlayingState()) {
+            gsyBaseVideoPlayer.releaseVideos();
+            System.out.println("检测 复用的情况 而且滑动还太快了 就搞事情嘛 清理掉！" + gsyBaseVideoPlayer.getPlayTag());
+        }
         gsyBaseVideoPlayer.startPlayLogic();
     }
 

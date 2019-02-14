@@ -15,8 +15,10 @@ import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import xyz.eagleweb.videodemo.listplayer.R;
 
@@ -28,6 +30,7 @@ public class GsyVideoQucikAdapter extends BaseQuickAdapter<String, GsyVideoQucik
 
 
     private Handler                         mHandler                = new Handler();
+    private Set<String>                     preparReleaseKeySet     = new HashSet<>();
     private Map<MyMultiVideoView, Runnable> videoReleaseRunnableMap = new HashMap<>();
 
     public GsyVideoQucikAdapter(int layoutResId, @Nullable List<String> data) {
@@ -37,10 +40,10 @@ public class GsyVideoQucikAdapter extends BaseQuickAdapter<String, GsyVideoQucik
     @Override
     protected void convert(ViewHolder holder, String item) {
         holder.iv_cover.setVisibility(View.VISIBLE);
-        if (holder.gsyVideoPlayer.isInPlayingState()) {
-            holder.gsyVideoPlayer.releaseVideos();
-            System.out.println("检测 复用的情况 而且滑动还太快了 就搞事情嘛 清理掉！" + holder.gsyVideoPlayer.getPlayTag());
-        }
+        //        if (holder.gsyVideoPlayer.isInPlayingState()) {
+        //            holder.gsyVideoPlayer.releaseVideos();
+        //            System.out.println("检测 复用的情况 而且滑动还太快了 就搞事情嘛 清理掉！" + holder.gsyVideoPlayer.getPlayTag());
+        //        }
         holder.gsyVideoPlayer.setUpLazy(item, false, null, null, "这是title");
         //增加title
         holder.gsyVideoPlayer.getTitleTextView().setVisibility(View.GONE);
@@ -84,6 +87,10 @@ public class GsyVideoQucikAdapter extends BaseQuickAdapter<String, GsyVideoQucik
         holder.gsyVideoPlayer.setLooping(true);
     }
 
+    public Set<String> getPrepareReleasePlayerSet() {
+        return preparReleaseKeySet;
+    }
+
     class ViewHolder extends BaseViewHolder {
         private MyMultiVideoView gsyVideoPlayer;
         private ImageView        iv_cover;
@@ -117,28 +124,19 @@ public class GsyVideoQucikAdapter extends BaseQuickAdapter<String, GsyVideoQucik
         super.onViewAttachedToWindow(holder);
         System.out.println("检测 onViewAttachedToWindow " + holder.getAdapterPosition());
         MyMultiVideoView gsyVideoPlayer = holder.gsyVideoPlayer;
-        Runnable prepareReleaseRunnable = videoReleaseRunnableMap.get(gsyVideoPlayer);
-        if (prepareReleaseRunnable != null) {
-            mHandler.removeCallbacks(prepareReleaseRunnable);
-            videoReleaseRunnableMap.remove(gsyVideoPlayer);
-            System.out.println("检测 想要 清理缓存 释放资源！但是没成：" + holder.getAdapterPosition());
-
-        }
+        preparReleaseKeySet.remove(gsyVideoPlayer.getKey());
     }
 
     @Override
     public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         System.out.println("检测 onViewDetachedFromWindow " + holder.getAdapterPosition());
-        //        holder.gsyVideoPlayer.setLooping(false);
+        holder.iv_cover.setVisibility(View.VISIBLE);
         MyMultiVideoView gsyVideoPlayer = holder.gsyVideoPlayer;
-        //        if (!gsyVideoPlayer.isInPlayingState()) {
+        //        if (gsyVideoPlayer.isInPlayingState()) {
+        preparReleaseKeySet.add(gsyVideoPlayer.getKey());
         //            return;
         //        }
-        holder.iv_cover.setVisibility(View.VISIBLE);
-        Runnable prepareReleaseRunnable = new ReleaseRunnable(holder);
-        mHandler.postDelayed(prepareReleaseRunnable, 500);
-        videoReleaseRunnableMap.put(gsyVideoPlayer, prepareReleaseRunnable);
     }
 
     class ReleaseRunnable implements Runnable {
@@ -168,8 +166,6 @@ public class GsyVideoQucikAdapter extends BaseQuickAdapter<String, GsyVideoQucik
 
         @Override
         public void onPrepared(String url, Object... objects) {
-            super.onPrepared(url, objects);
-            System.out.println("检测 onPrepared 准备完毕");
             mIvCoverView.setVisibility(View.GONE);
         }
     }
