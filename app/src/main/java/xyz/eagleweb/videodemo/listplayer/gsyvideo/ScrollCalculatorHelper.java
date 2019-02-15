@@ -68,6 +68,7 @@ public class ScrollCalculatorHelper {
         boolean needPlay = false;
 
         ArrayList<MyMultiVideoView> gsyBaseVideoPlayers = new ArrayList<>();
+        System.out.println("检测 visibleCount：" + visibleCount);
         for (int i = 0; i < visibleCount; i++) {
             if (layoutManager.getChildAt(i) != null && layoutManager.getChildAt(i).findViewById(playId) != null) {
                 MyMultiVideoView player = (MyMultiVideoView) layoutManager.getChildAt(i).findViewById(playId);
@@ -113,6 +114,7 @@ public class ScrollCalculatorHelper {
             CustomManager.releaseAllVideos(key);
             System.out.println("检测 释放：" + key);
         }
+        prepareReleaseKeySet.clear();
     }
 
     private class PlayRunnable implements Runnable {
